@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-size: 16px;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Light mode defaults */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #f8f7ff;
+  color: #1a1625;
+}
+
+/* Dark mode body */
+.dark body,
+body.dark {
+  background-color: #2d2a4a;
+  color: #e5e5e5;
+}
+
+#root {
+  width: 100%;
+}
+
+/* Hide number spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Light mode slider track */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: #e4e0f5;
+}
+.dark input[type="range"]::-webkit-slider-runnable-track {
+  background: #4d4a6a;
+}
+
+/* Slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #7c6dd8;
+  margin-top: -6px;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(124, 109, 216, 0.4);
+}
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+.dark input[type="range"]::-webkit-slider-thumb {
+  background: #9d8df1;
+  border-color: #3d3a5a;
+}
+
+/* Firefox range */
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: #e4e0f5;
+}
+.dark input[type="range"]::-moz-range-track {
+  background: #4d4a6a;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #7c6dd8;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+}
+.dark input[type="range"]::-moz-range-thumb {
+  background: #9d8df1;
+  border-color: #3d3a5a;
+}
+
+/* Input focus */
+input:focus {
+  outline: none;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+/* Exclude range slider from bg transition (causes visual issues) */
+input[type="range"],
+input[type="range"]::-webkit-slider-thumb,
+input[type="range"]::-webkit-slider-runnable-track {
+  transition: none;
+}
+
+/* Scrollbar styling (dark mode) */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #2d2a4a;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4d4a6a;
+  border-radius: 4px;
+}
+
+/* Table */
+table {
+  font-size: 0.875rem;
+}
+td, th {
+  padding: 0.625rem 0.5rem;
+}
