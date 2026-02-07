@@ -44,18 +44,18 @@ export default function Header({ darkMode, onToggleDarkMode, onSelectTicker, pro
       <div className="flex items-center gap-3">
         {profile && !isLoading && (
           <div className="flex items-center gap-2.5">
-            <span className="text-sm font-bold text-artemis-accent dark:text-artemis-dark-accent">
+            <span className="text-base font-bold text-artemis-accent dark:text-artemis-dark-accent">
               {profile.symbol}
             </span>
-            <span className="text-xs text-artemis-text-muted dark:text-artemis-dark-text-muted hidden md:inline truncate max-w-[200px]">
+            <span className="text-sm text-artemis-text-muted dark:text-artemis-dark-text-muted hidden md:inline truncate max-w-[250px]">
               {profile.companyName}
             </span>
             {price > 0 && (
               <>
-                <span className="text-sm font-semibold tabular-nums text-artemis-text dark:text-artemis-dark-text">
+                <span className="text-base font-semibold tabular-nums text-artemis-text dark:text-artemis-dark-text">
                   {formatCurrency(price, { decimals: 2 })}
                 </span>
-                <span className={`text-xs font-medium tabular-nums ${
+                <span className={`text-sm font-semibold tabular-nums ${
                   isPositive ? 'text-artemis-green' : 'text-artemis-red'
                 }`}>
                   {isPositive ? '+' : ''}{formatPercent(changePercent / 100, { decimals: 2 })}
@@ -82,18 +82,19 @@ export default function Header({ darkMode, onToggleDarkMode, onSelectTicker, pro
           ) : (
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium
                 bg-artemis-bg dark:bg-artemis-dark-bg
                 border border-artemis-border dark:border-artemis-dark-border
                 text-artemis-text-muted dark:text-artemis-dark-text-muted
-                hover:border-artemis-accent dark:hover:border-artemis-dark-accent"
+                hover:border-artemis-accent dark:hover:border-artemis-dark-accent
+                transition-colors"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <span className="hidden sm:inline">Search</span>
-              <kbd className="hidden md:inline-block px-1 py-0.5 text-[10px] rounded
+              <span>Search ticker</span>
+              <kbd className="hidden md:inline-block px-1.5 py-0.5 text-xs rounded
                 bg-artemis-border dark:bg-artemis-dark-border">
                 /
               </kbd>

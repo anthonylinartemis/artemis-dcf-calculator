@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { DCFInputs, ScenarioType } from '../types';
 import ScenarioToggle from './ScenarioToggle';
 
@@ -8,7 +9,10 @@ interface InputPanelProps {
   onScenarioChange: (scenario: ScenarioType) => void;
 }
 
-/** Reusable form input with label, info tooltip, and unit suffix */
+/**
+ * Controlled input that stores raw text so users can clear/edit freely.
+ * Only commits the parsed value to parent when a valid number is typed.
+ */
 function FormInput({
   label,
   value,
@@ -17,14 +21,44 @@ function FormInput({
   onChange,
 }: {
   label: string;
-  value: string | number;
+  value: number;
   unit: string;
   tooltip?: string;
-  onChange: (raw: string) => void;
+  onChange: (parsed: number | null) => void;
 }) {
+  const [raw, setRaw] = useState<string | null>(null);
+
+  // When not actively editing, show the formatted value from props
+  const displayValue = raw !== null ? raw : String(value);
+
+  const handleChange = (text: string) => {
+    setRaw(text);
+    if (text === '' || text === '-') {
+      onChange(null);
+      return;
+    }
+    const num = parseFloat(text);
+    if (!isNaN(num)) {
+      onChange(num);
+    }
+  };
+
+  const handleBlur = () => {
+    // On blur, if the field is empty, reset to 0
+    if (raw === '' || raw === '-') {
+      onChange(0);
+    }
+    setRaw(null); // Release local control, show prop value again
+  };
+
+  const handleFocus = () => {
+    // On focus, take over with the current prop value
+    setRaw(String(value));
+  };
+
   return (
     <div>
-      <label className="flex items-center gap-1.5 text-sm font-medium mb-1.5
+      <label className="flex items-center gap-1.5 text-sm font-semibold mb-1
         text-artemis-text dark:text-artemis-dark-text">
         {label}
         {tooltip && (
@@ -41,16 +75,18 @@ function FormInput({
         <input
           type="text"
           inputMode="decimal"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full pl-4 pr-10 py-2.5 rounded-lg text-sm tabular-nums
+          value={displayValue}
+          onChange={(e) => handleChange(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          className="w-full pl-4 pr-10 py-2.5 rounded-lg text-base tabular-nums
             bg-artemis-card dark:bg-artemis-dark-bg
             border border-artemis-border dark:border-artemis-dark-border
             text-artemis-text dark:text-artemis-dark-text
             focus:border-artemis-accent dark:focus:border-artemis-dark-accent
             focus:ring-2 focus:ring-artemis-accent/20 dark:focus:ring-artemis-dark-accent/20"
         />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium
           text-artemis-text-muted dark:text-artemis-dark-text-muted pointer-events-none">
           {unit}
         </span>
@@ -61,18 +97,15 @@ function FormInput({
 
 export default function InputPanel({ inputs, scenario, onInputChange, onScenarioChange }: InputPanelProps) {
   // Display values: percentages as plain numbers, large numbers in millions
-  const pctDisplay = (v: number) => parseFloat((v * 100).toFixed(2)).toString();
-  const millionsDisplay = (v: number) => Math.round(v / 1_000_000).toString();
-  const sharesMillionsDisplay = (v: number) => Math.round(v / 1_000_000).toString();
+  const pctVal = (v: number) => parseFloat((v * 100).toFixed(2));
+  const millionsVal = (v: number) => Math.round(v / 1_000_000);
 
-  // Parse back: percentage input → decimal, millions input → raw
-  const parsePct = (raw: string, key: keyof DCFInputs) => {
-    const num = parseFloat(raw);
-    if (!isNaN(num)) onInputChange(key, num / 100);
+  // Parse back: percentage → decimal, millions → raw
+  const handlePct = (num: number | null, key: keyof DCFInputs) => {
+    if (num !== null) onInputChange(key, num / 100);
   };
-  const parseMillions = (raw: string, key: keyof DCFInputs) => {
-    const num = parseFloat(raw);
-    if (!isNaN(num)) onInputChange(key, num * 1_000_000);
+  const handleMillions = (num: number | null, key: keyof DCFInputs) => {
+    if (num !== null) onInputChange(key, num * 1_000_000);
   };
 
   return (
@@ -80,78 +113,78 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
       bg-artemis-card dark:bg-artemis-dark-card
       border border-artemis-border dark:border-artemis-dark-border">
 
-      <h3 className="text-base font-bold mb-4 text-artemis-text dark:text-artemis-dark-text flex items-center gap-2">
+      <h3 className="text-lg font-bold mb-4 text-artemis-text dark:text-artemis-dark-text flex items-center gap-2">
         <span className="text-artemis-accent dark:text-artemis-dark-accent">~</span>
-        Inputs
+        Assumptions
       </h3>
 
       <div className="mb-5">
         <ScenarioToggle scenario={scenario} onChange={onScenarioChange} />
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         <FormInput
           label="Base Revenue (TTM)"
-          value={millionsDisplay(inputs.baseRevenue)}
-          unit="M"
+          value={millionsVal(inputs.baseRevenue)}
+          unit="$M"
           tooltip="Trailing twelve months revenue in millions"
-          onChange={(v) => parseMillions(v, 'baseRevenue')}
+          onChange={(v) => handleMillions(v, 'baseRevenue')}
         />
 
         <FormInput
           label="Revenue Growth Y1-5"
-          value={pctDisplay(inputs.revenueGrowthPhase1)}
+          value={pctVal(inputs.revenueGrowthPhase1)}
           unit="%"
           tooltip="Annual revenue growth rate for years 1-5"
-          onChange={(v) => parsePct(v, 'revenueGrowthPhase1')}
+          onChange={(v) => handlePct(v, 'revenueGrowthPhase1')}
         />
 
         <FormInput
           label="Revenue Growth Y6-10"
-          value={pctDisplay(inputs.revenueGrowthPhase2)}
+          value={pctVal(inputs.revenueGrowthPhase2)}
           unit="%"
           tooltip="Target growth rate that fades to by year 10"
-          onChange={(v) => parsePct(v, 'revenueGrowthPhase2')}
+          onChange={(v) => handlePct(v, 'revenueGrowthPhase2')}
         />
 
         <FormInput
           label="FCF Margin"
-          value={pctDisplay(inputs.fcfMargin)}
+          value={pctVal(inputs.fcfMargin)}
           unit="%"
           tooltip="Free cash flow as a percentage of revenue"
-          onChange={(v) => parsePct(v, 'fcfMargin')}
+          onChange={(v) => handlePct(v, 'fcfMargin')}
         />
 
         <FormInput
           label="Discount Rate (WACC)"
-          value={pctDisplay(inputs.discountRate)}
+          value={pctVal(inputs.discountRate)}
           unit="%"
           tooltip="Weighted average cost of capital"
-          onChange={(v) => parsePct(v, 'discountRate')}
+          onChange={(v) => handlePct(v, 'discountRate')}
         />
 
         <FormInput
           label="Terminal Growth Rate"
-          value={pctDisplay(inputs.terminalGrowthRate)}
+          value={pctVal(inputs.terminalGrowthRate)}
           unit="%"
           tooltip="Long-term sustainable growth rate (typically 2-3%)"
-          onChange={(v) => parsePct(v, 'terminalGrowthRate')}
+          onChange={(v) => handlePct(v, 'terminalGrowthRate')}
         />
 
         <FormInput
           label="Net Debt"
-          value={millionsDisplay(inputs.netDebt)}
-          unit="M"
+          value={millionsVal(inputs.netDebt)}
+          unit="$M"
           tooltip="Total debt minus cash and equivalents, in millions"
-          onChange={(v) => parseMillions(v, 'netDebt')}
+          onChange={(v) => handleMillions(v, 'netDebt')}
         />
 
         <FormInput
           label="Shares Outstanding"
-          value={sharesMillionsDisplay(inputs.sharesOutstanding)}
+          value={millionsVal(inputs.sharesOutstanding)}
           unit="M"
           tooltip="Diluted shares outstanding in millions"
-          onChange={(v) => parseMillions(v, 'sharesOutstanding')}
+          onChange={(v) => handleMillions(v, 'sharesOutstanding')}
         />
       </div>
     </div>
