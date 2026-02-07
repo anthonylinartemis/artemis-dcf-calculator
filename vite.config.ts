@@ -8,15 +8,6 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       proxy: {
-        '/api/fmp': {
-          target: 'https://financialmodelingprep.com',
-          changeOrigin: true,
-          rewrite: (path) => {
-            const cleaned = path.replace(/^\/api\/fmp/, '')
-            const separator = cleaned.includes('?') ? '&' : '?'
-            return `${cleaned}${separator}apikey=${env.FMP_API_KEY}`
-          },
-        },
         '/api/artemis': {
           target: 'https://data-svc.artemisxyz.com',
           changeOrigin: true,
