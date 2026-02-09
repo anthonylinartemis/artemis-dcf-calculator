@@ -1,3 +1,4 @@
+// @ts-nocheck — Sidelined: references old revenue-based DCFInputs fields. See TEMP_CHANGES.md.
 import type { DCFInputs, IncomeStatement, CashFlowStatement, BalanceSheet } from '../types';
 import type { ScenarioType } from '../types';
 import { DEFAULT_INPUTS, SCENARIO_MULTIPLIERS } from './constants';

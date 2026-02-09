@@ -1,20 +1,18 @@
 // ===== DCF Inputs =====
 export interface DCFInputs {
-  revenueGrowthPhase1: number; // e.g. 0.12 for 12%
-  revenueGrowthPhase2: number; // e.g. 0.06 for 6%
-  fcfMargin: number;           // e.g. 0.26 for 26%
-  discountRate: number;        // WACC, e.g. 0.10 for 10%
+  baseFCF: number;             // Current FCF in raw $
+  growthRate: number;          // e.g. 0.15 for 15%
   terminalGrowthRate: number;  // e.g. 0.025 for 2.5%
+  discountRate: number;        // WACC, e.g. 0.10 for 10%
+  projectionYears: number;     // e.g. 10
   netDebt: number;             // Total Debt - Cash (can be negative)
-  sharesOutstanding: number;   // Diluted shares
-  baseRevenue: number;         // TTM or last year revenue
+  sharesOutstanding: number;   // Diluted shares (raw count)
+  currentPrice: number;        // Current stock price for comparison
 }
 
 // ===== DCF Outputs =====
 export interface ProjectionYear {
-  year: number;         // 1-10
-  revenue: number;
-  growthRate: number;   // blended rate for this year
+  year: number;
   fcf: number;
   discountFactor: number;
   pvFCF: number;
@@ -30,14 +28,8 @@ export interface DCFResult {
   intrinsicValuePerShare: number;
 }
 
-// ===== Scenarios =====
+// ===== Scenarios (sidelined — kept for future API reconnection) =====
 export type ScenarioType = 'worst' | 'base' | 'best';
-
-export interface ScenarioInputs {
-  worst: DCFInputs;
-  base: DCFInputs;
-  best: DCFInputs;
-}
 
 // ===== Company Data =====
 export interface CompanyProfile {

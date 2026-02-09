@@ -1,12 +1,9 @@
 import { useState } from 'react';
-import type { DCFInputs, ScenarioType } from '../types';
-import ScenarioToggle from './ScenarioToggle';
+import type { DCFInputs } from '../types';
 
 interface InputPanelProps {
   inputs: DCFInputs;
-  scenario: ScenarioType;
   onInputChange: <K extends keyof DCFInputs>(key: K, value: DCFInputs[K]) => void;
-  onScenarioChange: (scenario: ScenarioType) => void;
 }
 
 /**
@@ -18,19 +15,15 @@ function FormInput({
   value,
   unit,
   tooltip,
-  apiSource,
   onChange,
 }: {
   label: string;
   value: number;
   unit: string;
   tooltip?: string;
-  apiSource?: boolean;
   onChange: (parsed: number | null) => void;
 }) {
   const [raw, setRaw] = useState<string | null>(null);
-
-  // When not actively editing, show the formatted value from props
   const displayValue = raw !== null ? raw : String(value);
 
   const handleChange = (text: string) => {
@@ -46,15 +39,13 @@ function FormInput({
   };
 
   const handleBlur = () => {
-    // On blur, if the field is empty, reset to 0
     if (raw === '' || raw === '-') {
       onChange(0);
     }
-    setRaw(null); // Release local control, show prop value again
+    setRaw(null);
   };
 
   const handleFocus = () => {
-    // On focus, take over with the current prop value
     setRaw(String(value));
   };
 
@@ -63,14 +54,6 @@ function FormInput({
       <label className="flex items-center gap-1.5 text-sm font-semibold mb-1
         text-artemis-text dark:text-artemis-dark-text">
         {label}
-        {apiSource && (
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold
-            bg-artemis-accent/10 dark:bg-artemis-dark-accent/10
-            text-artemis-accent dark:text-artemis-dark-accent
-            border border-artemis-accent/20 dark:border-artemis-dark-accent/20">
-            API
-          </span>
-        )}
         {tooltip && (
           <span title={tooltip}
             className="inline-flex items-center justify-center w-4 h-4 rounded-full
@@ -105,12 +88,10 @@ function FormInput({
   );
 }
 
-export default function InputPanel({ inputs, scenario, onInputChange, onScenarioChange }: InputPanelProps) {
-  // Display values: percentages as plain numbers, large numbers in millions
+export default function InputPanel({ inputs, onInputChange }: InputPanelProps) {
   const pctVal = (v: number) => parseFloat((v * 100).toFixed(2));
   const millionsVal = (v: number) => Math.round(v / 1_000_000);
 
-  // Parse back: percentage → decimal, millions → raw
   const handlePct = (num: number | null, key: keyof DCFInputs) => {
     if (num !== null) onInputChange(key, num / 100);
   };
@@ -125,56 +106,24 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
 
       <h3 className="text-lg font-bold mb-4 text-artemis-text dark:text-artemis-dark-text flex items-center gap-2">
         <span className="text-artemis-accent dark:text-artemis-dark-accent">~</span>
-        Assumptions
+        Inputs
       </h3>
-
-      <div className="mb-5">
-        <ScenarioToggle scenario={scenario} onChange={onScenarioChange} />
-      </div>
 
       <div className="space-y-3.5">
         <FormInput
-          label="Base Revenue (TTM)"
-          value={millionsVal(inputs.baseRevenue)}
+          label="Current Free Cash Flow"
+          value={millionsVal(inputs.baseFCF)}
           unit="$M"
-          tooltip="Trailing twelve months revenue in millions (from Artemis Income Statement)"
-          apiSource={true}
-          onChange={(v) => handleMillions(v, 'baseRevenue')}
+          tooltip="Current annual free cash flow in millions"
+          onChange={(v) => handleMillions(v, 'baseFCF')}
         />
 
         <FormInput
-          label="Revenue Growth Y1-5"
-          value={pctVal(inputs.revenueGrowthPhase1)}
+          label="Growth Rate"
+          value={pctVal(inputs.growthRate)}
           unit="%"
-          tooltip="Annual revenue growth rate for years 1-5 (computed from Artemis historical data)"
-          apiSource={true}
-          onChange={(v) => handlePct(v, 'revenueGrowthPhase1')}
-        />
-
-        <FormInput
-          label="Revenue Growth Y6-10"
-          value={pctVal(inputs.revenueGrowthPhase2)}
-          unit="%"
-          tooltip="Target growth rate that fades to by year 10 (derived from Phase 1 growth)"
-          apiSource={true}
-          onChange={(v) => handlePct(v, 'revenueGrowthPhase2')}
-        />
-
-        <FormInput
-          label="FCF Margin"
-          value={pctVal(inputs.fcfMargin)}
-          unit="%"
-          tooltip="Free cash flow as a percentage of revenue (computed from Artemis Cash Flow Statement)"
-          apiSource={true}
-          onChange={(v) => handlePct(v, 'fcfMargin')}
-        />
-
-        <FormInput
-          label="Discount Rate (WACC)"
-          value={pctVal(inputs.discountRate)}
-          unit="%"
-          tooltip="Weighted average cost of capital"
-          onChange={(v) => handlePct(v, 'discountRate')}
+          tooltip="Expected annual FCF growth rate"
+          onChange={(v) => handlePct(v, 'growthRate')}
         />
 
         <FormInput
@@ -186,11 +135,26 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
         />
 
         <FormInput
+          label="Discount Rate (WACC)"
+          value={pctVal(inputs.discountRate)}
+          unit="%"
+          tooltip="Weighted average cost of capital"
+          onChange={(v) => handlePct(v, 'discountRate')}
+        />
+
+        <FormInput
+          label="Projection Years"
+          value={inputs.projectionYears}
+          unit=""
+          tooltip="Number of years to project FCF"
+          onChange={(v) => { if (v !== null && v >= 1 && v <= 30) onInputChange('projectionYears', Math.round(v)); }}
+        />
+
+        <FormInput
           label="Net Debt"
           value={millionsVal(inputs.netDebt)}
           unit="$M"
-          tooltip="Total debt minus cash and equivalents, in millions (from Artemis Balance Sheet)"
-          apiSource={true}
+          tooltip="Total debt minus cash and equivalents, in millions"
           onChange={(v) => handleMillions(v, 'netDebt')}
         />
 
@@ -200,6 +164,14 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
           unit="M"
           tooltip="Diluted shares outstanding in millions"
           onChange={(v) => handleMillions(v, 'sharesOutstanding')}
+        />
+
+        <FormInput
+          label="Current Stock Price"
+          value={inputs.currentPrice}
+          unit="$"
+          tooltip="Current market price per share for comparison"
+          onChange={(v) => { if (v !== null) onInputChange('currentPrice', v); }}
         />
       </div>
     </div>
