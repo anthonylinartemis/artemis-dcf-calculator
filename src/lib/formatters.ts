@@ -10,17 +10,18 @@ export function formatCurrency(
   if (compact) {
     const abs = Math.abs(value);
     const sign = value < 0 ? '-' : '';
+    const trim = (n: string) => n.replace(/\.0$/, '');
     if (abs >= 1_000_000_000_000) {
-      return `${sign}$${(abs / 1_000_000_000_000).toFixed(1)}T`;
+      return `${sign}$${trim((abs / 1_000_000_000_000).toFixed(1))}T`;
     }
     if (abs >= 1_000_000_000) {
-      return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`;
+      return `${sign}$${trim((abs / 1_000_000_000).toFixed(1))}B`;
     }
     if (abs >= 1_000_000) {
-      return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
+      return `${sign}$${trim((abs / 1_000_000).toFixed(1))}M`;
     }
     if (abs >= 1_000) {
-      return `${sign}$${(abs / 1_000).toFixed(1)}K`;
+      return `${sign}$${trim((abs / 1_000).toFixed(1))}K`;
     }
   }
 
