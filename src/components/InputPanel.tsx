@@ -18,12 +18,14 @@ function FormInput({
   value,
   unit,
   tooltip,
+  apiSource,
   onChange,
 }: {
   label: string;
   value: number;
   unit: string;
   tooltip?: string;
+  apiSource?: boolean;
   onChange: (parsed: number | null) => void;
 }) {
   const [raw, setRaw] = useState<string | null>(null);
@@ -61,6 +63,14 @@ function FormInput({
       <label className="flex items-center gap-1.5 text-sm font-semibold mb-1
         text-artemis-text dark:text-artemis-dark-text">
         {label}
+        {apiSource && (
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold
+            bg-artemis-accent/10 dark:bg-artemis-dark-accent/10
+            text-artemis-accent dark:text-artemis-dark-accent
+            border border-artemis-accent/20 dark:border-artemis-dark-accent/20">
+            API
+          </span>
+        )}
         {tooltip && (
           <span title={tooltip}
             className="inline-flex items-center justify-center w-4 h-4 rounded-full
@@ -127,7 +137,8 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
           label="Base Revenue (TTM)"
           value={millionsVal(inputs.baseRevenue)}
           unit="$M"
-          tooltip="Trailing twelve months revenue in millions"
+          tooltip="Trailing twelve months revenue in millions (from Artemis Income Statement)"
+          apiSource={true}
           onChange={(v) => handleMillions(v, 'baseRevenue')}
         />
 
@@ -135,7 +146,8 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
           label="Revenue Growth Y1-5"
           value={pctVal(inputs.revenueGrowthPhase1)}
           unit="%"
-          tooltip="Annual revenue growth rate for years 1-5"
+          tooltip="Annual revenue growth rate for years 1-5 (computed from Artemis historical data)"
+          apiSource={true}
           onChange={(v) => handlePct(v, 'revenueGrowthPhase1')}
         />
 
@@ -143,7 +155,8 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
           label="Revenue Growth Y6-10"
           value={pctVal(inputs.revenueGrowthPhase2)}
           unit="%"
-          tooltip="Target growth rate that fades to by year 10"
+          tooltip="Target growth rate that fades to by year 10 (derived from Phase 1 growth)"
+          apiSource={true}
           onChange={(v) => handlePct(v, 'revenueGrowthPhase2')}
         />
 
@@ -151,7 +164,8 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
           label="FCF Margin"
           value={pctVal(inputs.fcfMargin)}
           unit="%"
-          tooltip="Free cash flow as a percentage of revenue"
+          tooltip="Free cash flow as a percentage of revenue (computed from Artemis Cash Flow Statement)"
+          apiSource={true}
           onChange={(v) => handlePct(v, 'fcfMargin')}
         />
 
@@ -175,7 +189,8 @@ export default function InputPanel({ inputs, scenario, onInputChange, onScenario
           label="Net Debt"
           value={millionsVal(inputs.netDebt)}
           unit="$M"
-          tooltip="Total debt minus cash and equivalents, in millions"
+          tooltip="Total debt minus cash and equivalents, in millions (from Artemis Balance Sheet)"
+          apiSource={true}
           onChange={(v) => handleMillions(v, 'netDebt')}
         />
 
