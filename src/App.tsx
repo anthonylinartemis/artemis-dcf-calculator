@@ -29,7 +29,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen overflow-x-hidden ${darkMode ? 'dark' : ''}`}>
       <div className="min-h-screen bg-artemis-bg dark:bg-artemis-dark-bg">
         <Header
           darkMode={darkMode}
@@ -50,6 +50,7 @@ export default function App() {
 
           <ProjectionTable
             projections={result.projections}
+            darkMode={darkMode}
           />
         </main>
 
